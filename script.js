@@ -1,12 +1,25 @@
-function loadData(){
+function loadData() {
   fetch("api/get_latest.php")
-  .then(r=>r.json())
-  .then(d=>{
-    suhu.innerText = d.suhu;
-    hum.innerText = d.kelembaban;
-    kipas.innerText = d.kipas;
-    led.innerText = d.led;
-  });
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("suhu").innerText = data.suhu;
+      document.getElementById("hum").innerText = data.kelembaban;
+      document.getElementById("kipas").innerText = data.kipas;
+
+      const ledEl = document.getElementById("led");
+      ledEl.innerText = data.led;
+
+      // Reset class
+      ledEl.className = "";
+
+      if (data.led === "GREEN") {
+        ledEl.classList.add("green");
+      } else if (data.led === "YELLOW") {
+        ledEl.classList.add("yellow");
+      } else if (data.led === "RED") {
+        ledEl.classList.add("red");
+      }
+    });
 }
 
 function send(mode,fan){
