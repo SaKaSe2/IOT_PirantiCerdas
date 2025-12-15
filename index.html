@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h2>Smart Fan Dashboard</h2>
+
+    <p>Suhu: <span id="suhu">--</span> °C</p>
+    <p>Kelembaban: <span id="hum">--</span> %</p>
+    <p>Kipas: <span id="kipas">--</span></p>
+    <p>LED: <span id="led">--</span></p>
+
+    <select id="mode">
+        <option value="AUTO">AUTO</option>
+        <option value="MANUAL">MANUAL</option>
+    </select>
+
+    <button onclick="fanOn()">Kipas ON</button>
+    <button onclick="fanOff()">Kipas OFF</button>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

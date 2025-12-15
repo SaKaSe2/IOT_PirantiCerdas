@@ -1,0 +1,107 @@
+/* ===== RESET DASAR ===== */
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #f2f4f8;
+  color: #333;
+}
+
+/* ===== JUDUL ===== */
+h2 {
+  text-align: center;
+  margin-top: 20px;
+  color: #2c3e50;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  width: 100%;
+  max-width: 420px;
+  margin: 20px auto;
+  padding: 15px;
+}
+
+/* ===== CARD ===== */
+.card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ===== DATA MONITORING ===== */
+.data {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.data span {
+  font-weight: bold;
+}
+
+/* ===== STATUS ===== */
+.status {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+/* ===== WARNA STATUS ===== */
+.green { color: #27ae60; }
+.yellow { color: #f1c40f; }
+.red { color: #e74c3c; }
+
+/* ===== KONTROL ===== */
+.control {
+  text-align: center;
+}
+
+.control select,
+.control button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+}
+
+/* ===== SELECT MODE ===== */
+.control select {
+  background: #ecf0f1;
+}
+
+/* ===== BUTTON ===== */
+button {
+  cursor: pointer;
+  background: #3498db;
+  color: white;
+}
+
+button:hover {
+  background: #2980b9;
+}
+
+button.off {
+  background: #e74c3c;
+}
+
+button.off:hover {
+  background: #c0392b;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin-top: 20px;
+}
