@@ -1,31 +1,309 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Fan Dashboard</title>
+    <title>Pest Detector Dashboard - IoT Smart Hydroponics</title>
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
-    <h2>Smart Fan Dashboard</h2>
+    <!-- Header -->
+    <header class="header">
+        <div class="container-fluid">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-bug-slash"></i>
+                    <h1>Pest Detector System</h1>
+                </div>
+                <div class="header-info">
+                    <span class="connection-status" id="connectionStatus">
+                        <i class="fas fa-circle-notch fa-spin"></i> Connecting...
+                    </span>
+                    <span class="last-update">Last Update: <span id="lastUpdate">--</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
 
-    <p>Suhu: <span id="suhu">--</span> °C</p>
-    <p>Kelembaban: <span id="hum">--</span> %</p>
-    <p>Kipas: <span id="kipas">--</span></p>
-    <p>LED: <span id="led">--</span></p>
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Alert Banner -->
+        <div id="alertBanner" class="alert-banner hidden">
+            <div class="alert-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="alertMessage">Hama Terdeteksi!</span>
+            </div>
+            <button onclick="closeAlert()" class="alert-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
-    <select id="mode">
-        <option value="AUTO">AUTO</option>
-        <option value="MANUAL">MANUAL</option>
-    </select>
+        <!-- Main Grid -->
+        <div class="main-grid">
+            
+            <!-- Left Column: Real-time Monitoring -->
+            <div class="left-column">
+                
+                <!-- Current Status Card -->
+                <div class="card status-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-tachometer-alt"></i> Status Real-Time</h2>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Alert Level Badge -->
+                        <div class="alert-badge" id="alertBadge">
+                            <div class="alert-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="alert-info">
+                                <span class="alert-label">Status</span>
+                                <span class="alert-value" id="alertText">AMAN</span>
+                            </div>
+                        </div>
 
-    <button onclick="fanOn()">Kipas ON</button>
-    <button onclick="fanOff()">Kipas OFF</button>
+                        <!-- Sensor Data Grid -->
+                        <div class="sensor-grid">
+                            
+                            <!-- Motion Detection -->
+                            <div class="sensor-item">
+                                <div class="sensor-icon motion-icon">
+                                    <i class="fas fa-running"></i>
+                                </div>
+                                <div class="sensor-info">
+                                    <span class="sensor-label">Deteksi Gerakan</span>
+                                    <span class="sensor-value" id="motionValue">Clear</span>
+                                </div>
+                            </div>
 
+                            <!-- Distance -->
+                            <div class="sensor-item">
+                                <div class="sensor-icon distance-icon">
+                                    <i class="fas fa-ruler-horizontal"></i>
+                                </div>
+                                <div class="sensor-info">
+                                    <span class="sensor-label">Jarak Objek</span>
+                                    <span class="sensor-value">
+                                        <span id="distanceValue">--</span>
+                                        <small>cm</small>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- LED Status -->
+                            <div class="sensor-item">
+                                <div class="sensor-icon led-icon">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="sensor-info">
+                                    <span class="sensor-label">Indikator LED</span>
+                                    <span class="sensor-value" id="ledValue">OFF</span>
+                                </div>
+                            </div>
+
+                            <!-- Buzzer Intensity -->
+                            <div class="sensor-item">
+                                <div class="sensor-icon buzzer-icon">
+                                    <i class="fas fa-volume-up"></i>
+                                </div>
+                                <div class="sensor-info">
+                                    <span class="sensor-label">Intensitas Alarm</span>
+                                    <span class="sensor-value">
+                                        <span id="buzzerValue">0</span>
+                                        <small>/ 255</small>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Card -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> Grafik Real-Time</h2>
+                        <select id="chartTimeRange" class="chart-range-select" onchange="updateChartRange()">
+                            <option value="20">20 Data Terakhir</option>
+                            <option value="50">50 Data Terakhir</option>
+                            <option value="100">100 Data Terakhir</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="distanceChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <span class="legend-item">
+                                <span class="legend-color" style="background: #3498db;"></span>
+                                Jarak (cm)
+                            </span>
+                            <span class="legend-item">
+                                <span class="legend-color" style="background: #e74c3c;"></span>
+                                Alert Level
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Controls & Statistics -->
+            <div class="right-column">
+                
+                <!-- Control Panel Card -->
+                <div class="card control-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-sliders-h"></i> Panel Kontrol</h2>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- System Mode -->
+                        <div class="control-group">
+                            <label class="control-label">
+                                <i class="fas fa-cog"></i> Mode Sistem
+                            </label>
+                            <div class="toggle-group">
+                                <button class="toggle-btn active" id="autoBtn" onclick="setMode('AUTO')">
+                                    <i class="fas fa-robot"></i> AUTO
+                                </button>
+                                <button class="toggle-btn" id="manualBtn" onclick="setMode('MANUAL')">
+                                    <i class="fas fa-hand-pointer"></i> MANUAL
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Manual Buzzer Control -->
+                        <div class="control-group" id="manualControl">
+                            <label class="control-label">
+                                <i class="fas fa-bell"></i> Kontrol Buzzer Manual
+                            </label>
+                            <div class="toggle-group">
+                                <button class="toggle-btn" id="buzzerOnBtn" onclick="setBuzzer('ON')">
+                                    <i class="fas fa-volume-up"></i> ON
+                                </button>
+                                <button class="toggle-btn active" id="buzzerOffBtn" onclick="setBuzzer('OFF')">
+                                    <i class="fas fa-volume-mute"></i> OFF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sensitivity Slider -->
+                        <div class="control-group">
+                            <label class="control-label">
+                                <i class="fas fa-crosshairs"></i> Sensitivitas Jarak
+                                <span class="sensitivity-value" id="sensitivityDisplay">50 cm</span>
+                            </label>
+                            <input type="range" id="sensitivitySlider" class="slider" 
+                                   min="10" max="200" value="50" 
+                                   oninput="updateSensitivityDisplay(this.value)">
+                            <div class="slider-labels">
+                                <span>10cm</span>
+                                <span>200cm</span>
+                            </div>
+                        </div>
+
+                        <!-- Apply Button -->
+                        <button class="btn-primary" onclick="applySettings()">
+                            <i class="fas fa-save"></i> Terapkan Pengaturan
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- Statistics Card -->
+                <div class="card stats-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-bar"></i> Statistik Hari Ini</h2>
+                    </div>
+                    <div class="card-body">
+                        
+                        <div class="stats-grid">
+                            
+                            <div class="stat-item danger">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="dangerCount">0</span>
+                                    <span class="stat-label">Deteksi Bahaya</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-item warning">
+                                <div class="stat-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="warningCount">0</span>
+                                    <span class="stat-label">Peringatan</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-item motion">
+                                <div class="stat-icon">
+                                    <i class="fas fa-walking"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="motionCount">0</span>
+                                    <span class="stat-label">Gerakan Terdeteksi</span>
+                                </div>
+                            </div>
+
+                            <div class="stat-item distance">
+                                <div class="stat-icon">
+                                    <i class="fas fa-arrows-alt-h"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="avgDistance">--</span>
+                                    <span class="stat-label">Rata-rata Jarak</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Recent Detections -->
+                <div class="card log-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> Log Deteksi Terbaru</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="log-list" id="logList">
+                            <div class="log-empty">
+                                <i class="fas fa-inbox"></i>
+                                <p>Belum ada deteksi hari ini</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Pest Detector IoT System | Universitas Muhammadiyah Malang</p>
+            <p>Developed by Rikza Ahmad NM & Muhammad Nabil FS</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
     <script src="script.js"></script>
-
 </body>
-
 </html>

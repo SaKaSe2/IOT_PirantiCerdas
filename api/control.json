@@ -1,1 +1,7 @@
-{"mode":"MANUAL","fan":"OFF","led":"ON"}
+{
+  "mode": "AUTO",
+  "buzzer": "OFF",
+  "sensitivity": 50,
+  "notification": true,
+  "last_update": "2025-01-01 00:00:00"
+}

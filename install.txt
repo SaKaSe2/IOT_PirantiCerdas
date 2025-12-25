@@ -1,0 +1,301 @@
+╔════════════════════════════════════════════════════════════════╗
+║     PANDUAN INSTALASI CEPAT - PEST DETECTOR IOT SYSTEM        ║
+║                    Quick Setup Guide                           ║
+╚════════════════════════════════════════════════════════════════╝
+
+📌 QUICK START (5 LANGKAH)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ STEP 1: INSTALL SOFTWARE
+───────────────────────────
+□ Arduino IDE: https://www.arduino.cc/en/software
+□ XAMPP: https://www.apachefriends.org/download.html
+□ ESP32 Board di Arduino IDE:
+  File → Preferences → Additional Boards Manager URLs:
+  https://dl.espressif.com/dl/package_esp32_index.json
+
+✅ STEP 2: SETUP DATABASE
+──────────────────────────
+1. Start XAMPP (Apache + MySQL)
+2. Buka http://localhost/phpmyadmin
+3. Klik "New" → Nama: "pest_detector"
+4. Klik "Import" → Pilih file "database.sql" → Go
+5. ✓ Database siap!
+
+✅ STEP 3: SETUP WEBSITE
+────────────────────────
+1. Copy folder proyek ke:
+   Windows: C:\xampp\htdocs\pest_detector\
+   Linux: /opt/lampp/htdocs/pest_detector/
+   Mac: /Applications/XAMPP/htdocs/pest_detector/
+
+2. Edit file: config/database.php
+   $conn = new mysqli("localhost", "root", "", "pest_detector");
+   ^                  ^           ^      ^    ^
+   |                  |           |      |    └─ Database name
+   |                  |           |      └────── Password (kosong default)
+   |                  |           └───────────── Username
+   |                  └───────────────────────── Host
+   └──────────────────────────────────────────── Keep localhost
+
+3. Test: http://localhost/pest_detector/
+   Jika muncul dashboard → ✓ Berhasil!
+
+✅ STEP 4: UPLOAD CODE ESP32
+─────────────────────────────
+1. Buka file: pest_detector_esp32.ino
+
+2. EDIT 3 BARIS INI (PENTING!):
+   ┌──────────────────────────────────────────────────────┐
+   │ const char* ssid = "NAMA_WIFI_ANDA";                 │
+   │ const char* password = "PASSWORD_WIFI";              │
+   │ const char* serverInsert = "http://192.168.1.XXX/... │
+   └──────────────────────────────────────────────────────┘
+
+3. Cari IP Address komputer Anda:
+   Windows: cmd → ketik "ipconfig"
+   Linux/Mac: terminal → ketik "ifconfig"
+   
+   Contoh output:
+   IPv4 Address: 192.168.1.100  ← GUNAKAN INI!
+   
+4. Ganti XXX dengan IP Anda:
+   serverInsert = "http://192.168.1.100/pest_detector/api/insert.php";
+   serverControl = "http://192.168.1.100/pest_detector/api/control.json";
+
+5. Upload ke ESP32:
+   Tools → Board → ESP32 Dev Module
+   Tools → Port → (pilih port COM ESP32)
+   Upload (Ctrl + U)
+
+✅ STEP 5: WIRING HARDWARE
+───────────────────────────
+Hubungkan komponen sesuai tabel:
+
+┌─────────────┬──────────────┬──────────────────────┐
+│ Komponen    │ Pin Komponen │ ESP32 Pin            │
+├─────────────┼──────────────┼──────────────────────┤
+│ PIR         │ VCC          │ 5V                   │
+│             │ GND          │ GND                  │
+│             │ OUT          │ GPIO 13              │
+├─────────────┼──────────────┼──────────────────────┤
+│ Ultrasonik  │ VCC          │ 5V                   │
+│             │ GND          │ GND                  │
+│             │ TRIG         │ GPIO 26              │
+│             │ ECHO         │ GPIO 27              │
+├─────────────┼──────────────┼──────────────────────┤
+│ Buzzer      │ (+)          │ GPIO 25              │
+│             │ (-)          │ GND                  │
+├─────────────┼──────────────┼──────────────────────┤
+│ LED         │ Anode (+)    │ GPIO 2               │
+│             │ Kathode (-)  │ GND (via resistor)   │
+└─────────────┴──────────────┴──────────────────────┘
+
+VISUAL DIAGRAM:
+                    ┌──────────┐
+      PIR OUT ──────┤ GPIO 13  │
+      TRIG ─────────┤ GPIO 26  │
+      ECHO ─────────┤ GPIO 27  │    ESP32
+      BUZZER ───────┤ GPIO 25  │   DevKit V1
+      LED ──────────┤ GPIO 2   │
+      All VCC ──────┤ 5V       │
+      All GND ──────┤ GND      │
+                    └──────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 TESTING & VERIFIKASI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST 1: Serial Monitor
+┌─────────────────────────────────────────────────────┐
+│ Buka Serial Monitor (Ctrl+Shift+M)                  │
+│ Set baud rate: 115200                               │
+│                                                      │
+│ Jika berhasil, akan tampil:                         │
+│ Connecting to WiFi...                               │
+│ WiFi Connected!                                      │
+│ IP Address: 192.168.1.XXX                           │
+│ AUTO | Motion: 0 | Dist: 123.4cm | Alert: 0         │
+└─────────────────────────────────────────────────────┘
+
+TEST 2: Database
+┌─────────────────────────────────────────────────────┐
+│ Buka: http://localhost/phpmyadmin                   │
+│ Pilih database: pest_detector                       │
+│ Pilih tabel: monitoring                             │
+│ Klik "Browse"                                       │
+│                                                      │
+│ Jika berhasil, akan ada data yang masuk setiap      │
+│ 3 detik dari ESP32                                  │
+└─────────────────────────────────────────────────────┘
+
+TEST 3: Dashboard
+┌─────────────────────────────────────────────────────┐
+│ Buka: http://localhost/pest_detector/               │
+│                                                      │
+│ Cek:                                                │
+│ ✓ Status: Connected (hijau)                        │
+│ ✓ Data sensor terupdate real-time                  │
+│ ✓ Grafik menampilkan data                          │
+│ ✓ Tidak ada error di browser console (F12)         │
+└─────────────────────────────────────────────────────┘
+
+TEST 4: Sensor PIR
+┌─────────────────────────────────────────────────────┐
+│ 1. Gerakkan tangan di depan sensor PIR             │
+│ 2. Serial Monitor: Motion: 1                        │
+│ 3. Dashboard: "Gerakan: Detected!"                  │
+│ 4. LED menyala                                      │
+└─────────────────────────────────────────────────────┘
+
+TEST 5: Sensor Ultrasonik
+┌─────────────────────────────────────────────────────┐
+│ 1. Dekatkan objek ke sensor (< 50cm)               │
+│ 2. Serial Monitor: Dist: XX.Xcm                     │
+│ 3. Dashboard: Jarak berubah real-time              │
+│ 4. Jika < sensitivitas → Buzzer bunyi              │
+└─────────────────────────────────────────────────────┘
+
+TEST 6: Mode MANUAL
+┌─────────────────────────────────────────────────────┐
+│ 1. Di dashboard, klik "MANUAL"                      │
+│ 2. Klik "Buzzer ON"                                 │
+│ 3. Klik "Terapkan Pengaturan"                       │
+│ 4. Buzzer berbunyi                                  │
+│ 5. Serial Monitor: MANUAL | Buzzer: ON             │
+└─────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ TROUBLESHOOTING CEPAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROBLEM: ESP32 tidak connect WiFi
+SOLUSI:
+□ Pastikan WiFi 2.4GHz (bukan 5GHz)
+□ Cek SSID dan password benar (case-sensitive!)
+□ ESP32 dalam jangkauan WiFi
+□ Restart ESP32 (tekan tombol RESET)
+
+PROBLEM: Database error "Connection failed"
+SOLUSI:
+□ XAMPP MySQL running? (status hijau)
+□ Username/password di database.php benar?
+□ Database "pest_detector" sudah dibuat?
+□ Test manual: http://localhost/phpmyadmin
+
+PROBLEM: Dashboard tidak update real-time
+SOLUSI:
+□ Connection status "Connected"? Jika tidak, refresh page
+□ Buka Console (F12) → lihat error
+□ Test SSE manual: http://localhost/pest_detector/api/sse.php
+□ Disable browser extensions (AdBlock, dll)
+
+PROBLEM: Data tidak masuk database
+SOLUSI:
+□ Serial Monitor: lihat response "Data sent: OK"
+□ Jika error 404: cek IP address di ESP32 code
+□ Test API manual di browser:
+   http://192.168.1.XXX/pest_detector/api/get_latest.php
+□ Cek firewall tidak blok port 80
+
+PROBLEM: Sensor tidak akurat
+SOLUSI:
+PIR:
+  □ Tunggu 1 menit setelah power on (warm up)
+  □ Kurangi sensitivitas potensio di sensor
+  □ Jauhi sumber panas (AC, kipas, heater)
+
+Ultrasonik:
+  □ Cek kabel TRIG & ECHO tidak tertukar
+  □ Objek harus tegak lurus sensor
+  □ Jarak valid: 2cm - 400cm
+  □ Hindari permukaan soft/miring
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 CHECKLIST SEBELUM PRESENTASI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Hardware terakit dengan rapi di breadboard
+□ Semua kabel tersambung dengan benar
+□ ESP32 connect ke WiFi (cek Serial Monitor)
+□ Database berisi data (cek phpMyAdmin)
+□ Dashboard tampil normal di browser
+□ Status "Connected" di dashboard
+□ Grafik menampilkan data real-time
+□ Test PIR → gerakan terdeteksi
+□ Test Ultrasonik → jarak terukur akurat
+□ Test Buzzer → bunyi saat hama dekat
+□ Test Mode AUTO/MANUAL berfungsi
+□ Test ubah sensitivitas berfungsi
+□ Slide PowerPoint siap
+□ Video backup demo (optional tapi recommended!)
+□ Pahami cara kerja sistem (baca README.md)
+□ Siap jawab pertanyaan asisten
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 TIPS PRESENTASI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BAGIAN 1: KONSEP (3 menit)
+┌─────────────────────────────────────────────────────┐
+│ ✓ Jelaskan masalah: Hama di hidroponik              │
+│ ✓ Solusi: Deteksi otomatis dengan IoT              │
+│ ✓ Tunjukkan komponen hardware                       │
+│ ✓ Jelaskan input/output (analog/digital)            │
+│ ✓ Tunjukkan diagram alur sistem                     │
+└─────────────────────────────────────────────────────┘
+
+BAGIAN 2: DEMO (5 menit)
+┌─────────────────────────────────────────────────────┐
+│ ✓ Tunjukkan hardware yang sudah dirakit             │
+│ ✓ Buka dashboard, explain fitur                     │
+│ ✓ Test PIR: gerakkan tangan → sistem detect        │
+│ ✓ Test Ultrasonik: dekatkan objek → buzzer bunyi   │
+│ ✓ Tunjukkan grafik real-time update                │
+│ ✓ Switch mode AUTO/MANUAL                           │
+│ ✓ Tunjukkan statistik hari ini                      │
+│                                                      │
+│ HIGHLIGHT:                                          │
+│ - Website CUSTOM (bukan Blynk/ThingSpeak)          │
+│ - Real-time dengan SSE                              │
+│ - Database custom                                   │
+│ - 4 sensor/actuator sesuai requirement              │
+└─────────────────────────────────────────────────────┘
+
+PERTANYAAN YANG SERING DITANYAKAN ASISTEN:
+┌─────────────────────────────────────────────────────┐
+│ Q: Apa perbedaan input analog dan digital?          │
+│ A: Digital = 0/1 (PIR), Analog = 0-4095 (jarak)    │
+│                                                      │
+│ Q: Apa itu PWM di buzzer?                           │
+│ A: Pulse Width Modulation untuk variasi intensitas │
+│                                                      │
+│ Q: Kenapa pakai SSE, bukan WebSocket?               │
+│ A: SSE lebih simple, one-way dari server ke client │
+│                                                      │
+│ Q: Gimana cara ESP32 kirim data ke server?          │
+│ A: HTTP POST ke API insert.php setiap 3 detik      │
+│                                                      │
+│ Q: Database pakai tabel apa saja?                   │
+│ A: monitoring (data sensor), pest_log (histori),   │
+│    system_settings (konfigurasi)                    │
+└─────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 SUPPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Jika ada masalah, cek file:
+- README.md (dokumentasi lengkap)
+- INSTALLATION_GUIDE.txt (ini)
+- Comments di source code
+
+Good luck! 🚀
+
+Tim: Rikza Ahmad NM & Muhammad Nabil FS
+UMM - Piranti Cerdas 2025

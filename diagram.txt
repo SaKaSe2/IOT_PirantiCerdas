@@ -1,0 +1,303 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    WIRING DIAGRAM - PEST DETECTOR                        ║
+║                         ESP32 Pin Connections                            ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 CONNECTION TABLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌───────────────┬──────────────┬──────────┬─────────────────────────────┐
+│   Component   │ Comp. Pin    │ ESP32Pin │ Type                        │
+├───────────────┼──────────────┼──────────┼─────────────────────────────┤
+│ PIR HC-SR501  │ VCC          │ 5V       │ Power                       │
+│               │ GND          │ GND      │ Ground                      │
+│               │ OUT          │ GPIO 13  │ DIGITAL INPUT (Motion)      │
+├───────────────┼──────────────┼──────────┼─────────────────────────────┤
+│ Ultrasonic    │ VCC          │ 5V       │ Power                       │
+│ HC-SR04       │ GND          │ GND      │ Ground                      │
+│               │ TRIG         │ GPIO 26  │ Digital Output (Trigger)    │
+│               │ ECHO         │ GPIO 27  │ ANALOG INPUT (Distance)     │
+├───────────────┼──────────────┼──────────┼─────────────────────────────┤
+│ Buzzer Active │ Positive (+) │ GPIO 25  │ ANALOG OUTPUT PWM           │
+│ 5V            │ Negative (-) │ GND      │ Ground                      │
+├───────────────┼──────────────┼──────────┼─────────────────────────────┤
+│ LED           │ Anode (+)    │ GPIO 2   │ DIGITAL OUTPUT              │
+│               │ Kathode (-)  │ GND      │ Ground (via 220Ω resistor)  │
+└───────────────┴──────────────┴──────────┴─────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 VISUAL DIAGRAM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        ESP32 DevKit V1
+                    ┌───────────────────────┐
+                    │                       │
+    PIR (OUT) ──────┤ GPIO 13        5V ────┼──── VCC (All Components)
+                    │                       │
+    TRIG ───────────┤ GPIO 26       GND ────┼──── GND (All Components)
+                    │                       │
+    ECHO ───────────┤ GPIO 27               │
+                    │                       │
+    BUZZER (+) ─────┤ GPIO 25               │
+                    │                       │
+    LED (+) ────────┤ GPIO 2                │
+                    │                       │
+                    └───────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔌 DETAILED COMPONENT WIRING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  PIR SENSOR HC-SR501
+┌──────────────────────────────────────────────────────────────┐
+│                                                               │
+│        PIR Sensor                                             │
+│    ┌───────────────┐                                         │
+│    │   VCC    OUT  │                                         │
+│    │    │      │   │                                         │
+│    │   [=]    [=]  │                                         │
+│    │    │      │   │                                         │
+│    │   GND         │                                         │
+│    └────┼──────┼───┘                                         │
+│         │      │                                             │
+│         │      └────────────────┐                            │
+│         │                       │                            │
+│         │                       ▼                            │
+│         │              ┌─────────────────┐                   │
+│         │              │ ESP32           │                   │
+│         └─────────────►│ 5V              │                   │
+│                        │ GND             │                   │
+│         ┌─────────────►│ GPIO 13 (INPUT) │                   │
+│         │              └─────────────────┘                   │
+│         │                                                    │
+│         └── RED Wire (Digital Signal)                        │
+│                                                               │
+│  NOTES:                                                      │
+│  - Ada 2 potensio: Sensitivity (jarak) & Time Delay          │
+│  - Jumper: H (Retrigger), L (Single trigger) → Gunakan H    │
+│  - Warm up time: ~1 menit setelah power on                   │
+└──────────────────────────────────────────────────────────────┘
+
+
+2️⃣  ULTRASONIC SENSOR HC-SR04
+┌──────────────────────────────────────────────────────────────┐
+│                                                               │
+│     Ultrasonic HC-SR04                                        │
+│    ┌──────────────────┐                                      │
+│    │ VCC TRIG ECHO GND│                                      │
+│    │  │   │    │   │  │                                      │
+│    │ [=] [=]  [=] [=] │                                      │
+│    └──┼───┼────┼───┼──┘                                      │
+│       │   │    │   │                                         │
+│       │   │    │   └───────────────┐                         │
+│       │   │    │                   │                         │
+│       │   │    └───────────┐       │                         │
+│       │   │                │       │                         │
+│       │   └────────┐       │       │                         │
+│       │            │       │       │                         │
+│       │            ▼       ▼       ▼                         │
+│       │   ┌──────────────────────────┐                       │
+│       │   │ ESP32                    │                       │
+│       └──►│ 5V                       │                       │
+│           │ GND                      │                       │
+│           │ GPIO 26 (TRIG OUTPUT)    │                       │
+│           │ GPIO 27 (ECHO INPUT)     │                       │
+│           └──────────────────────────┘                       │
+│                                                               │
+│  WORKING PRINCIPLE:                                          │
+│  1. TRIG pin sends 10μs HIGH pulse                           │
+│  2. Sensor transmits 8x 40kHz ultrasonic burst               │
+│  3. ECHO pin goes HIGH when burst sent                       │
+│  4. ECHO pin goes LOW when echo received                     │
+│  5. Distance = (HIGH duration × 0.034) / 2 cm                │
+│                                                               │
+│  NOTES:                                                      │
+│  - Range: 2cm - 400cm                                        │
+│  - Angle: 15 degrees                                         │
+│  - Accuracy: ±3mm                                            │
+└──────────────────────────────────────────────────────────────┘
+
+
+3️⃣  BUZZER (PWM Control)
+┌──────────────────────────────────────────────────────────────┐
+│                                                               │
+│      Active Buzzer 5V                                         │
+│         ┌─────┐                                              │
+│         │  +  │  ← Positive (longer pin)                     │
+│         └──┬──┘                                              │
+│            │                                                  │
+│            │ RED Wire                                         │
+│            │                                                  │
+│            ▼                                                  │
+│   ┌──────────────────┐                                       │
+│   │ ESP32            │                                       │
+│   │ GPIO 25 (PWM)────┤  ← Analog Output (0-255)             │
+│   │                  │                                       │
+│   │ GND ─────────────┤                                       │
+│   └──────────────────┘                                       │
+│            │                                                  │
+│            │ BLACK Wire                                       │
+│            │                                                  │
+│            ▼                                                  │
+│         ┌─────┐                                              │
+│         │  -  │  ← Negative (shorter pin)                    │
+│         └─────┘                                              │
+│                                                               │
+│  PWM LEVELS:                                                 │
+│  - 0   = OFF (Silent)                                        │
+│  - 150 = Medium (Warning)                                    │
+│  - 255 = Full (Danger Alert)                                 │
+│                                                               │
+│  NOTES:                                                      │
+│  - Active Buzzer = Has built-in oscillator                   │
+│  - Frequency: ~2kHz                                          │
+│  - Current: ~30mA @ 5V                                       │
+└──────────────────────────────────────────────────────────────┘
+
+
+4️⃣  LED INDICATOR
+┌──────────────────────────────────────────────────────────────┐
+│                                                               │
+│        LED Circuit                                            │
+│                                                               │
+│         ┌────┐                                               │
+│         │ LED│  ← Anode (+) = Long leg                       │
+│         └──┬─┘                                               │
+│            │                                                  │
+│            │ RED Wire                                         │
+│            │                                                  │
+│            ▼                                                  │
+│   ┌──────────────────┐                                       │
+│   │ ESP32            │                                       │
+│   │ GPIO 2 (OUTPUT)──┤  ← Digital Output (HIGH/LOW)         │
+│   │                  │                                       │
+│   │ GND ─────────────┤                                       │
+│   └──────────────────┘                                       │
+│            │                                                  │
+│            │                                                  │
+│            ▼                                                  │
+│       ┌────────┐                                             │
+│       │ 220Ω   │  ← Current Limiting Resistor                │
+│       │Resistor│                                             │
+│       └────┬───┘                                             │
+│            │                                                  │
+│            │ BLACK Wire                                       │
+│            │                                                  │
+│            ▼                                                  │
+│         ┌────┐                                               │
+│         │ LED│  ← Kathode (-) = Short leg                    │
+│         └────┘                                               │
+│                                                               │
+│  WHY RESISTOR?                                               │
+│  LED Forward Voltage: ~2V                                    │
+│  ESP32 Output: 3.3V                                          │
+│  LED Current Rating: 20mA max                                │
+│  Resistor = (3.3V - 2V) / 0.02A = 65Ω minimum                │
+│  Use 220Ω for safety (gives ~6mA current)                    │
+│                                                               │
+│  STATES:                                                     │
+│  - OFF  = Safe (No threat)                                   │
+│  - ON   = Alert (Motion/Danger detected)                     │
+└──────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔋 POWER DISTRIBUTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                        Power Rail
+                ┌──────────────────────────┐
+                │                          │
+                │         5V Rail          │
+                │    ┌──────────────┐      │
+  USB 5V ───────┼───►│ ESP32 5V Pin │      │
+                │    └──────────────┘      │
+                │           │              │
+                │           ├──────────────┼──► PIR VCC
+                │           │              │
+                │           ├──────────────┼──► Ultrasonik VCC
+                │           │              │
+                │           └──────────────┼──► Buzzer (+)
+                │                          │
+                │       GND Rail           │
+                │    ┌──────────────┐      │
+                │    │ ESP32 GND Pin│      │
+                │    └──────────────┘      │
+                │           │              │
+                │           ├──────────────┼──► PIR GND
+                │           │              │
+                │           ├──────────────┼──► Ultrasonik GND
+                │           │              │
+                │           ├──────────────┼──► Buzzer (-)
+                │           │              │
+                │           └──────────────┼──► LED (via resistor)
+                │                          │
+                └──────────────────────────┘
+
+TOTAL CURRENT CONSUMPTION:
+┌─────────────────────────┬──────────┐
+│ Component               │ Current  │
+├─────────────────────────┼──────────┤
+│ ESP32 (WiFi active)     │ ~200 mA  │
+│ PIR Sensor              │ ~50 mA   │
+│ Ultrasonic              │ ~15 mA   │
+│ Buzzer (active)         │ ~30 mA   │
+│ LED                     │ ~6 mA    │
+├─────────────────────────┼──────────┤
+│ TOTAL (worst case)      │ ~300 mA  │
+└─────────────────────────┴──────────┘
+
+✅ Safe for USB power (max 500mA)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  IMPORTANT NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. ALWAYS connect GND first, then VCC
+2. Double check polarity before power on
+3. ESP32 GPIO max current: 40mA per pin
+4. Use common GND for all components
+5. Keep wires short to reduce noise
+6. Use solid core wire for breadboard
+7. Color coding:
+   - RED = Power (5V, 3.3V)
+   - BLACK = Ground
+   - YELLOW/ORANGE = Signal
+8. PIR needs 1 minute warm-up after power on
+9. Ultrasonik works best with flat surfaces
+10. Don't connect/disconnect while powered
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ TESTING CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BEFORE POWERING ON:
+□ All components properly seated in breadboard
+□ VCC connections: ESP32 5V → All component VCC
+□ GND connections: ESP32 GND → All component GND
+□ Signal wires match pin numbers in code
+□ No short circuits visible
+□ Resistor connected to LED kathode
+
+AFTER POWERING ON:
+□ ESP32 power LED lights up
+□ PIR power LED lights up (if available)
+□ No smoke or burning smell
+□ No components getting hot
+□ Serial Monitor shows WiFi connected
+
+TESTING SENSORS:
+□ PIR: Wave hand → LED should blink
+□ Ultrasonik: Place object close → distance changes
+□ Buzzer: Should sound when object is close
+□ LED: Should light up during alerts
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Good luck with your wiring! 🔧⚡
+
+Team: Rikza Ahmad NM & Muhammad Nabil FS
+UMM - Piranti Cerdas 2025
