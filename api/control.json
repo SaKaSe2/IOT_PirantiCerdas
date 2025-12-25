@@ -1,7 +1,7 @@
 {
-  "mode": "AUTO",
-  "buzzer": "OFF",
-  "sensitivity": 50,
-  "notification": true,
-  "last_update": "2025-01-01 00:00:00"
+    "mode": "AUTO",
+    "buzzer": "ON",
+    "sensitivity": 10,
+    "notification": true,
+    "last_update": "2025-12-25 22:51:26"
 }
